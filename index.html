@@ -71,10 +71,8 @@
       }
       function setBoard(){
         let board = document.getElementById("pure-html").innerHTML;
-        axios.post(rootURL+"board", {
-          id: 1,
-          boardHTML: board
-        })
+        let requestBody = {id: 1, boardHTML: board}
+        axios.post(rootURL+"board", requestBody)
         .then(function (response) { console.log(response); })
         .catch(function (error) { console.log(error); });
       }
