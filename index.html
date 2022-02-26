@@ -59,7 +59,7 @@
       }
 
       function getBoard(){
-        axios.get(rootURL+"/board")
+        axios.get(rootURL+"board")
         .then(function (response) {
           console.log(response);
           document.getElementById("pure-html").innerHTML =  response.data[0].boardHTML;
@@ -71,7 +71,7 @@
       }
       function setBoard(){
         let board = document.getElementById("pure-html").innerHTML;
-        axios.post(rootURL+"/board", {
+        axios.post(rootURL+"board", {
           id: 1,
           boardHTML: board
         })
