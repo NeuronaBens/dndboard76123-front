@@ -47,7 +47,7 @@
     <script type="text/javascript">
 
       var paint = "c1"; //funciona
-      const rootURL = 'https://dndboard76123.herokuapp.com/api/v1/';
+      const rootURL = 'https://dndboard76123.herokuapp.com/api/v1/'; //quitar el cors temporary fix.
 
       //FUNC
       //permite mostrar exactamente cual es el valor actual en el range
@@ -62,7 +62,7 @@
         axios.get(rootURL+"/board")
         .then(function (response) {
           console.log(response);
-          document.getElementById("pure-html").innerHTML =  response.boardHTML;
+          document.getElementById("pure-html").innerHTML =  response.data[0].boardHTML;
         })
         .catch(function (error) { console.log(error); })
         .then(function () {
@@ -70,9 +70,10 @@
         });
       }
       function setBoard(){
+        let board = document.getElementById("pure-html").innerHTML;
         axios.post(rootURL+"/board", {
           id: 1,
-          boardHTML: document.getElementById("pure-html").innerHTML
+          boardHTML: board
         })
         .then(function (response) { console.log(response); })
         .catch(function (error) { console.log(error); });
