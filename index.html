@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>D&D Board</title>
+
+    <style media="screen">
+      table {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .set-right {
+        float: right;
+      }
+      .margin-sm {
+        margin: 2px;
+      }
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        height: 25px;
+        background-color: #fdfdfd;
+
+        -webkit-touch-callout: none; /* todo este bloque permite que no se muestre el text cursor o se pueda seleccionar el <td> */
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        text-decoration: none;
+      }
+      td:hover {
+        filter: brightness(80%);
+      }
+      .c0 {background-color: #fdfdfd;}
+      .c1 {background-color: red;}
+      .c2 {background-color: blue;}
+      .c3 {background-color: yellow;}
+      .c4 {background-color: orange;}
+      .c5 {background-color: green;}
+    </style>
+
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+
+      var paint = "c1"; //funciona
+      const rootURL = 'https://dndboard76123.herokuapp.com/api/v1/';
+
+      //FUNC
+      //permite mostrar exactamente cual es el valor actual en el range
+      function showRangeValue(){ //funciona
+        w = document.getElementById("W").value;
+        h = document.getElementById("H").value;
+        document.getElementById("W-show").innerHTML = w;
+        document.getElementById("H-show").innerHTML = h;
+      }
+
+      function getBoard(){
+        axios.get(rootURL+"/board")
+        .then(function (response) {
+          console.log(response);
+          document.getElementById("pure-html").innerHTML =  response.boardHTML;
+        })
+        .catch(function (error) { console.log(error); })
+        .then(function () {
+          // always executed
+        });
+      }
+      function setBoard(){
+        axios.post(rootURL+"/board", {
+          id: 1,
+          boardHTML: document.getElementById("pure-html").innerHTML
+        })
+        .then(function (response) { console.log(response); })
+        .catch(function (error) { console.log(error); });
+      }
+
+      //FUNC
+      //permite cambiar la funcionalidad y color de los <td>s, agregando quick erase, y quitandolo luego
+      function changePainterColor(num){ //funciona
+        paint = "c" + String(num);
+        console.log(paint);
+        //el condicional de abajo permite la funcionalidad de borrador rápido.
+        if (num == 0) {
+          tds = document.getElementsByClassName("click-coloring");
+          for(let i = 0; i < tds.length; i++)
+            tds[i].addEventListener("mouseover", function(){
+              tds[i].className = "click-coloring"; //aqui simplemente se reinicia todo sin usar condiciones
+            });
+        }
+        else {
+          board = document.getElementById("board");
+          board.replaceWith(board.cloneNode(true)); //remueve todos los event listeners haciendo una copia profunda del div
+          tds = document.getElementsByClassName("click-coloring");
+
+          for(let i = 0; i < tds.length; i++) //se dan los event listeners necesarios nuevamente
+            tds[i].addEventListener("click", function(){
+              if(String(tds[i].className).length > 14){tds[i].className = "click-coloring";} //hardcoding del 14, longitud de "click-coloring"
+              else {tds[i].className += " " + paint;}
+            });
+        }
+      }
+
+      //FUNC
+      //permite crear el tablero en el cual se pintarán los tiles
+      function createBoard() { //funciona
+        w = document.getElementById("W").value;
+        h = document.getElementById("H").value; //se adquieren las dimensiones requeridas
+
+        boardString = "<table>"; //aca empieza el codigo para crear una tabla dinámica
+        for(let i = 0; i < h; i++) {
+          boardString = boardString.concat("<tr>");
+          for(let j = 0; j < w; j++) {
+            boardString = boardString.concat("<td class='click-coloring'></td>");
+          }
+          boardString = boardString.concat("</tr>");
+        }
+        boardString = boardString.concat("</table>");
+        document.getElementById("board").innerHTML = boardString;//aca termina el codigo para crear una tabla dinámica
+
+        tds = document.getElementsByClassName("click-coloring");
+
+        for(let i = 0; i < tds.length; i++) //se le da a cada objeto dentro de la tabla un efecto al ocurrir un evento
+          tds[i].addEventListener("click", function(){
+            if(String(tds[i].className).length > 14){tds[i].className = "click-coloring";} //hard coding del 14 que es la longitud de "click-coloring"
+            else {tds[i].className += " " + paint;}
+          });
+      }
+
+    </script>
+
+    <div id="pure-html">
+      <span>W: </span>
+      <input type="range" id="W" value="8" max = "40" onchange="showRangeValue();"> <span id="W-show">8</span>
+      <br>
+      <span>H: </span>
+      <input type="range" id="H" value="8" max = "40" onchange="showRangeValue();"> <span id="H-show">8</span>
+      <br><br>
+      <button onclick="createBoard();">Create</button>
+      <button class="set-right margin-sm" onclick="setBoard();">set</button>
+      <button class="set-right margin-sm" onclick="getBoard();">get</button>
+      <br><br>
+      <input type="radio" name="color" class="rb1" onchange="changePainterColor(1);">
+      <span>red</span> <br>
+      <input type="radio" name="color" class="rb2" onchange="changePainterColor(2);">
+      <span>blue</span> <br>
+      <input type="radio" name="color" class="rb3" onchange="changePainterColor(3);">
+      <span>yellow</span> <br>
+      <input type="radio" name="color" class="rb4" onchange="changePainterColor(4);">
+      <span>orange</span> <br>
+      <input type="radio" name="color" class="rb5" onchange="changePainterColor(5);">
+      <span>green</span> <br>
+      <input type="radio" name="color" class="rb0" onchange="changePainterColor(0);">
+      <span>eraser</span> <br>
+      <br><br>
+
+      <div id="board"></div>
+      <br><br>
+      <br><br>
+      <br><br>
+    </div>
+  </body>
+</html>
